@@ -5,6 +5,7 @@ const { public_state } = require('../../config/application.config.js');
 
 const articlesURL = './lib/database/sql/articles';
 const articles_commentsURL = './lib/database/sql/articles_comments';
+const articles_category = './lib/database/sql/articles_category';
 
 // 1. 該当ユーザーの公開記事をデータベース(articles)から作成日付順に取得するAPI
 // 2. 投稿記事のデータベース(articles)から記事を作成日付順で取得するAPIを記述。
@@ -14,6 +15,7 @@ router.use('/page', require('./page/page.js'));
 // クエリパラメータの値が指定されていなければ最新の記事から取得。
 router.use('/search', require('./search/search.js'));
 
+// ユーザーの下書きデータに関するAPI
 router.use('/draft', require('./draft/draft.js'));
 
 // カテゴリーデータベース(category)からカテゴリー一覧全て取得するAPI
@@ -70,6 +72,10 @@ router.delete('/:id', async (req, res, next) => {
   try {
     transaction = await mysqlAPI.beginTransaction();
     query = await promisifyReadFile(`${articlesURL}/DELETE_ARTICLES_BY_ID.sql`);
+    await transaction.query(query, [id]);
+    query = await promisifyReadFile(
+      `${articles_category}/DELETE_ARTICLES_CATEGORY_BY_ARTICLE_ID.sql`
+    );
     await transaction.query(query, [id]);
     await transaction.commit();
     res.json({ message: '記事が削除されました。' });

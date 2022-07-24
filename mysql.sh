@@ -13,15 +13,11 @@ VALUES("Dummy", "dummy@gmail.com","$2b$10$Etc2SKDOWqaGiT61eB6f7OWzqN1ll3iLKzerfo
 
 # articlesのテーブル作成
 CREATE TABLE articles(id int not null auto_increment primary key, user_id int not null,
-title varchar(32) not null, letter_body text not null, photo_url varchar(255), 
-created_at datetime not null, public tinyint not null, article_id_of_storage varchar(255), 
-file_names text, images_url text);
+title varchar(32) not null, letter_body text not null, created_at datetime not null, 
+public tinyint not null, article_id_storage varchar(255), file_names text, images_url text);
 # articlesのデータ挿入
-INSERT INTO articles(user_id, title, letter_body, photo_url, created_at, public) 
-  VALUES
-  ("1", "Hello World!", "こんにちは!", "https://placehold.jp/250x250.png", "2022-06-22 12:27:00", 1),
-  ("1", "下書きHello World!", "下書きこんにちは!", "https://placehold.jp/250x250.png", "2022-06-22 13:25:00", 0),
-  ("1", "下書きHello World!2", "下書きこんにちは!2", "https://placehold.jp/250x250.png", "2022-06-22 14:25:00", 0);
+INSERT INTO articles(user_id, title, letter_body, created_at, public, article_id_storage, file_names, images_url)
+  VALUES(1, "テスト", "テスト", "2022-07-22 00:00:00", 1, "", "", "");
 
 # users_login_historyのテーブル作成
 CREATE TABLE users_login_history(id int not null auto_increment primary key, user_id int not null, 
@@ -90,17 +86,6 @@ INSERT INTO category(name)
 # articles_categoryテーブルの作成
 CREATE TABLE articles_category(id int not null auto_increment primary key, 
 articles_id int not null, category_id int not null);
-# articles_categoryテーブルにデータ挿入
-INSERT INTO articles_category(articles_id, category_id)
-  VALUES
-  (1, 8),
-  (1, 9),
-  (1, 10),
-  (1, 14),
-  (1, 19),
-  (3, 8),
-  (3, 9),
-  (3, 12);
 
 # articles_commentsテーブルの作成
 CREATE TABLE articles_comments(id int not null auto_increment primary key, articles_id int not null, 

@@ -1,7 +1,7 @@
-const router = require("express").Router();
-const mysqlAPI = require("../../../lib/database/mysqlAPI");
+const router = require('express').Router();
+const mysqlAPI = require('../../../lib/database/mysqlAPI');
 const { MAX_ITEMS_PER_PAGE } =
-  require("../../../config/application.config.js").search;
+  require('../../../config/application.config.js').search;
 
 // 検索keywordの個数に応じて動的にクエリを作成するため、バードコーディングで下記2つのSQLを記述。
 const articlesByLikeSearchSQL = `
@@ -9,8 +9,10 @@ SELECT
   a.id AS article_id,
   a.title,
   a.letter_body,
-  a.photo_url AS article_photo_url,
   a.created_at,
+  a.article_id_storage,
+  a.file_names,
+  a.images_url,
   u.id AS user_id,
   u.username,
   u.photo_url AS user_photo_url,
@@ -61,9 +63,9 @@ FROM
     GROUP BY a.id
 `;
 
-router.get("/", async (req, res, next) => {
-  const keyword = req.query.keyword || "";
-  const keywordArray = keyword.split(" ");
+router.get('/', async (req, res, next) => {
+  const keyword = req.query.keyword || '';
+  const keywordArray = keyword.split(' ');
   const page = req.query.page || 1;
   let queryArticlesByLikeSearch = articlesByLikeSearchSQL;
   let parametaArticlesByLikeSearch = [];
@@ -115,6 +117,7 @@ router.get("/", async (req, res, next) => {
     const paginationMaxCount = Math.ceil(
       count[0].totalPages / MAX_ITEMS_PER_PAGE
     );
+
     res.json({
       data,
       pagination: {
