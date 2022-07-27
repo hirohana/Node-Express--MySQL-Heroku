@@ -2,10 +2,67 @@ const router = require('express').Router();
 const mysqlAPI = require('../../lib/database/mysqlAPI');
 const { promisifyReadFile } = require('../../lib/utils/promisifyReadFile.js');
 const { public_state } = require('../../config/application.config.js');
+const { jstNow } = require('../../lib/utils/jstNow');
 
 const articlesURL = './lib/database/sql/articles';
 const articles_commentsURL = './lib/database/sql/articles_comments';
 const articles_category = './lib/database/sql/articles_category';
+
+// twitterとfacebookのOGPタグを生成するAPI
+router.post('/article/:id', async (req, res, next) => {
+  const bodyData = {};
+});
+// 記事のコメントを挿入するAPI
+router.post('/comments', async (req, res, next) => {
+  const { now } = jstNow();
+  const bodyData = {
+    articleId: req.body.articleId,
+    userId: req.body.userId,
+    comment: req.body.comment,
+    createdAt: now,
+  };
+  let transaction;
+
+  try {
+    transaction = await mysqlAPI.beginTransaction();
+    const query = await promisifyReadFile(
+      `${articles_commentsURL}/INSERT_ARTICLES_COMMENTS_BY_ID.sql`
+    );
+    await transaction.query(query, [
+      bodyData.articleId,
+      bodyData.userId,
+      bodyData.comment,
+      bodyData.createdAt,
+    ]);
+    await transaction.commit();
+    res.end();
+  } catch (err) {
+    await transaction.rollback();
+    next(err);
+  }
+});
+
+// 記事のコメントを削除するAPI
+router.delete('/comments/:id', async (req, res, next) => {
+  const bodyData = {
+    commentId: Number(req.params.id),
+    comment: 'このコメントは投稿者により削除されました。',
+  };
+  let transaction;
+
+  try {
+    transaction = await mysqlAPI.beginTransaction();
+    const query = await promisifyReadFile(
+      `${articles_commentsURL}/DELETE_ARTICLES_COMMENTS_BY_ID.sql`
+    );
+    transaction.query(query, [bodyData.comment, bodyData.commentId]);
+    await transaction.commit();
+    res.end();
+  } catch (err) {
+    await transaction.rollback();
+    next(err);
+  }
+});
 
 // 1. 該当ユーザーの公開記事をデータベース(articles)から作成日付順に取得するAPI
 // 2. 投稿記事のデータベース(articles)から記事を作成日付順で取得するAPIを記述。
