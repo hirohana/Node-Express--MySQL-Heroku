@@ -40,6 +40,7 @@ services:
       - ./db/conf:/etc/mysql/conf.d/:ro
       - mysqldata:/var/lib/mysql
       - ./db/logs:/var/log/mysql
+      - ./db/initDb:/docker-entrypoint-initdb.d
     networks:
       - network
 
